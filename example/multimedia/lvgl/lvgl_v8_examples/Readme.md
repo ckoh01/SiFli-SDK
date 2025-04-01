@@ -19,3 +19,8 @@
 ```
             
       
+如果需要lvgl的img显示用 CF_INDEXED_8_BIT 格式图片，将 project\Kconfig.proj 添加:
+
+config LV_USE_L8_GPU
+    bool 
+    default y
