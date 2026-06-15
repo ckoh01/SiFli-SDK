@@ -144,8 +144,8 @@ menuconfig RT_USING_PM
     if RT_USING_PM
         choice
             prompt "Select PM Mode"
-            default PM_STANDBY_ENABLE if !SOC_SF32LB52X
-            default PM_DEEP_ENABLE   if SOC_SF32LB52X
+            default PM_DEEP_ENABLE   if SOC_SF32LB52X || SOC_SF32LB57X
+            default PM_STANDBY_ENABLE
             config PM_STANDBY_ENABLE
                 bool "Enable Standby Mode"
             config PM_DEEP_ENABLE
