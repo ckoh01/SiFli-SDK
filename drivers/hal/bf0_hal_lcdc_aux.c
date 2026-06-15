@@ -60,7 +60,7 @@ __weak uint32_t BSP_GET_DPI_AUX_VSYNC_PIN(void)
     HAL_ASSERT(0);
     return 0;
 }
-static DMA_HandleTypeDef hdma_handle = {0};
+
 void DPI_HW_FSM_START(LCDC_HandleTypeDef *lcdc)
 {
     __IO uint32_t *p_VSYNC_PINMUX_REG = &(hwp_pinmux1->PAD_PA00) + BSP_GET_DPI_AUX_VSYNC_PIN();
@@ -169,22 +169,22 @@ void DPI_HW_FSM_START(LCDC_HandleTypeDef *lcdc)
     /*Dynamic allocation of DMA channels*/
     DMA_Channel_TypeDef *p_DMACH = NULL;
     uint32_t PTC_DMACH_TC;
-    memset(&hdma_handle, 0, sizeof(hdma_handle));
+    memset(&lcdc->hdma_handle, 0, sizeof(lcdc->hdma_handle));
 
-    hdma_handle.Instance = DMA1_Channel2;
-    HAL_DMA_Init(&hdma_handle);
-    if (HAL_DMA_AllocChannel(&hdma_handle) != HAL_OK)
+    lcdc->hdma_handle.Instance = DMA1_Channel2;
+    HAL_DMA_Init(&lcdc->hdma_handle);
+    if (HAL_DMA_AllocChannel(&lcdc->hdma_handle) != HAL_OK)
     {
         HAL_LCDC_ASSERT(0); //DMA channel allocation failed
     }
-    if (hdma_handle.Instance != DMA1_Channel2 && hdma_handle.Instance != DMA1_Channel1)
+    if (lcdc->hdma_handle.Instance != DMA1_Channel2 && lcdc->hdma_handle.Instance != DMA1_Channel1)
     {
         HAL_LCDC_ASSERT(0); //Only DMA1_Channel2 and DMA1_Channel1 have good performance on PSRAM read
     }
 
 
-    p_DMACH = hdma_handle.Instance;
-    uint32_t channel_num = (hdma_handle.ChannelIndex >> 2) + 1;
+    p_DMACH = lcdc->hdma_handle.Instance;
+    uint32_t channel_num = (lcdc->hdma_handle.ChannelIndex >> 2) + 1;
     PTC_DMACH_TC = PTC_HCPU_DMAC1_DONE1 + (channel_num - 1);
     /*DMA channel init end*/
 
@@ -366,7 +366,7 @@ void DPI_HW_FSM_STOP(LCDC_HandleTypeDef *lcdc)
     NVIC_DisableIRQ(PTM_IRQ_NUM);
 
     //Free dma channel
-    HAL_DMA_FreeChannel(&hdma_handle);
+    HAL_DMA_FreeChannel(&lcdc->hdma_handle);
 }
 
 void DPI_HW_FSM_UPDATE_LAYER_DATA(LCDC_HandleTypeDef *lcdc)

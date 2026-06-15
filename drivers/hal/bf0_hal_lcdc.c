@@ -3522,9 +3522,6 @@ extern HAL_StatusTypeDef DPI_HW_FSM_UPDATE_LAYER_DATA_DONE(LCDC_HandleTypeDef *l
 #define PTC_BTIM_UPDATE      PTC_HCPU_BTIM2_UPDATE
 #define PTC_btim   hwp_btim2
 #define BTIM_RCC_MOD  RCC_MOD_BTIM2
-#ifdef DMA_SUPPORT_DYN_CHANNEL_ALLOC
-static DMA_HandleTypeDef hdma_ptc_ch0 = {0};
-#endif /* DMA_SUPPORT_DYN_CHANNEL_ALLOC */
 static DMA_Channel_TypeDef *p_DMACH0 = NULL;
 static uint8_t PTC_DMACH0_TC = 0xFF;
 
@@ -3583,23 +3580,21 @@ static uint8_t PTC_DMACH0_TC = 0xFF;
 
 
 
-static void DMA_channel_init(void)
+static void DMA_channel_init(LCDC_HandleTypeDef *lcdc)
 {
 #ifdef DMA_SUPPORT_DYN_CHANNEL_ALLOC
 
     /*Dynamic allocation of DMA channels*/
-    memset(&hdma_ptc_ch0, 0, sizeof(hdma_ptc_ch0));
-
-    hdma_ptc_ch0.Instance = DMA1_Channel5;
-    HAL_DMA_Init(&hdma_ptc_ch0);
-    if (HAL_DMA_AllocChannel(&hdma_ptc_ch0) != HAL_OK)
+    lcdc->hdma_handle.Instance = DMA1_Channel5;
+    HAL_DMA_Init(&lcdc->hdma_handle);
+    if (HAL_DMA_AllocChannel(&lcdc->hdma_handle) != HAL_OK)
     {
         HAL_LCDC_ASSERT(0); //DMA channel allocation failed
     }
 
 
-    p_DMACH0 = hdma_ptc_ch0.Instance;
-    uint32_t channel_num = (hdma_ptc_ch0.ChannelIndex >> 2) + 1;
+    p_DMACH0 = lcdc->hdma_handle.Instance;
+    uint32_t channel_num = (lcdc->hdma_handle.ChannelIndex >> 2) + 1;
     PTC_DMACH0_TC = PTC_HCPU_DMAC1_DONE1 + (channel_num - 1);
     /*DMA channel init end*/
 
@@ -3665,7 +3660,7 @@ static void SPI_AUX_HW_FSM_START(LCDC_HandleTypeDef *lcdc)
     HAL_RCC_EnableModule(RCC_MOD_PTC1);
 
 
-    DMA_channel_init();
+    DMA_channel_init(lcdc);
 
     SPI_AUX_RST_HW_FSM();
 
@@ -4205,7 +4200,7 @@ static void DPI_HW_FSM_START(LCDC_HandleTypeDef *lcdc)
 
 
 
-    DMA_channel_init();
+    DMA_channel_init(lcdc);
 
 
 
@@ -4586,16 +4581,16 @@ static void DPI_HW_FSM_STOP(LCDC_HandleTypeDef *lcdc)
 
 #else
 #ifdef DMA_SUPPORT_DYN_CHANNEL_ALLOC
-    memset(&hdma_ptc_ch0, 0, sizeof(hdma_ptc_ch0));
+    memset(&lcdc->hdma_handle, 0, sizeof(lcdc->hdma_handle));
 
     /* Clear the DMAC configuration channel*/
     if (p_DMACH0)
     {
 
 
-        hdma_ptc_ch0.Instance = p_DMACH0;
-        HAL_DMA_DeInit(&hdma_ptc_ch0);
-        if (HAL_DMA_FreeChannel(&hdma_ptc_ch0) != HAL_OK)
+        lcdc->hdma_handle.Instance = p_DMACH0;
+        HAL_DMA_DeInit(&lcdc->hdma_handle);
+        if (HAL_DMA_FreeChannel(&lcdc->hdma_handle) != HAL_OK)
         {
             HAL_LCDC_ASSERT(0); //DMA channel free failed
         }
