@@ -47,36 +47,65 @@ pin_function HAL_PIN_Idx2Func(int pad, int idx,  int hcpu)
 
 void board_pinmux_mpi1_type1(void)
 {
+    uint32_t i;
+
     HAL_PIN_CompileTimeSet(PAD_SA10, MPI1_FLASH_CLK,  PIN_NOPULL, 1);
     HAL_PIN_CompileTimeSet(PAD_SA00, MPI1_FLASH_CS,   PIN_NOPULL, 1);
     HAL_PIN_CompileTimeSet(PAD_SA12, MPI1_FLASH_DIO0, PIN_PULLDOWN, 1);
     HAL_PIN_CompileTimeSet(PAD_SA02, MPI1_FLASH_DIO1, PIN_PULLDOWN, 1);
     HAL_PIN_CompileTimeSet(PAD_SA04, MPI1_FLASH_DIO2, PIN_PULLUP, 1);
     HAL_PIN_CompileTimeSet(PAD_SA11, MPI1_FLASH_DIO3, PIN_PULLUP, 1);
+
+    /* DS1=0, DS0=1 (8mA drive) */
+    for (i = 0; i < (PAD_SA12 - PAD_SA00 + 1); i++)
+    {
+        HAL_PIN_Set_DS0(PAD_SA00 + i, 1, 1);
+        HAL_PIN_Set_DS1(PAD_SA00 + i, 1, 0);
+    }
 }
 
 void board_pinmux_mpi1_type2(void)
 {
+    uint32_t i;
+
     HAL_PIN_CompileTimeSet(PAD_SA10, MPI1_FLASH_CLK,  PIN_NOPULL, 1);
     HAL_PIN_CompileTimeSet(PAD_SA03, MPI1_FLASH_CS,   PIN_NOPULL, 1);
     HAL_PIN_CompileTimeSet(PAD_SA12, MPI1_FLASH_DIO0, PIN_PULLDOWN, 1);
     HAL_PIN_CompileTimeSet(PAD_SA02, MPI1_FLASH_DIO1, PIN_PULLDOWN, 1);
     HAL_PIN_CompileTimeSet(PAD_SA01, MPI1_FLASH_DIO2, PIN_PULLUP, 1);
     HAL_PIN_CompileTimeSet(PAD_SA09, MPI1_FLASH_DIO3, PIN_PULLUP, 1);
+
+    /* DS1=0, DS0=1 (8mA drive) */
+    for (i = 0; i < (PAD_SA12 - PAD_SA00 + 1); i++)
+    {
+        HAL_PIN_Set_DS0(PAD_SA00 + i, 1, 1);
+        HAL_PIN_Set_DS1(PAD_SA00 + i, 1, 0);
+    }
 }
 
 void board_pinmux_mpi2(void)
 {
+    uint32_t i;
+
     HAL_PIN_CompileTimeSet(PAD_SB12, MPI2_CLK, PIN_NOPULL, 1);
     HAL_PIN_CompileTimeSet(PAD_SB06, MPI2_CS,  PIN_NOPULL, 1);
     HAL_PIN_CompileTimeSet(PAD_SB10, MPI2_DIO0, PIN_PULLDOWN, 1);
     HAL_PIN_CompileTimeSet(PAD_SB05, MPI2_DIO1, PIN_PULLDOWN, 1);
     HAL_PIN_CompileTimeSet(PAD_SB04, MPI2_DIO2, PIN_PULLUP, 1);
     HAL_PIN_CompileTimeSet(PAD_SB11, MPI2_DIO3, PIN_PULLUP, 1);
+
+    /* DS1=0, DS0=1 (8mA drive), MPI3 may use SB at the same time so the configuration also work for MPI3 */
+    for (i = 0; i < (PAD_SB12 - PAD_SB00 + 1); i++)
+    {
+        HAL_PIN_Set_DS0(PAD_SB00 + i, 1, 1);
+        HAL_PIN_Set_DS1(PAD_SB00 + i, 1, 0);
+    }
 }
 
 void board_pinmux_mpi3(void)
 {
+    uint32_t i;
+
     HAL_PIN_CompileTimeSet(PAD_PA16, MPI3_CLK, PIN_NOPULL, 1);
     HAL_PIN_CompileTimeSet(PAD_PA12, MPI3_CS,  PIN_NOPULL, 1);
     HAL_PIN_CompileTimeSet(PAD_PA15, MPI3_DIO0, PIN_PULLDOWN, 1);
@@ -89,6 +118,13 @@ void board_pinmux_mpi3(void)
     HAL_PMU_ClearPadRetention(PAD_PA13);
     HAL_PMU_ClearPadRetention(PAD_PA14);
     HAL_PMU_ClearPadRetention(PAD_PA17);
+
+    /* DS1=0, DS0=1 (8mA drive) */
+    for (i = 0; i < (PAD_PA17 - PAD_PA12 + 1); i++)
+    {
+        HAL_PIN_Set_DS0(PAD_PA12 + i, 1, 1);
+        HAL_PIN_Set_DS1(PAD_PA12 + i, 1, 0);
+    }
 }
 
 void board_pinmux_sd(void)
