@@ -262,6 +262,24 @@ void boot_images_help()
 
         select_boot();
 
+#ifdef DFU_LOADER_START_ADDR
+        /* UART-DFU trigger (at_app AT+OTA): needs_update=1 at the DFU_LOADER
+         * trailer (end - 0x2000, field offset 288) -> boot the DFU loader image
+         * (LCPU slot) instead of main. Compiled only for boards whose ptab
+         * defines a DFU_LOADER partition. */
+        if (DFU_LOADER_START_ADDR != FLASH_UNINIT_32 &&
+            DFU_LOADER_SIZE != FLASH_UNINIT_32)
+        {
+            uint32_t dfu_needs_update = 0;
+            g_flash_read(DFU_LOADER_START_ADDR + DFU_LOADER_SIZE - 0x2000 + 288,
+                         (const int8_t *)&dfu_needs_update, sizeof(dfu_needs_update));
+            if (dfu_needs_update == 1)
+            {
+                sec_config_cache.running_imgs[CORE_HCPU] = (struct image_header_enc *) & (((struct sec_configuration *)FLASH_TABLE_START_ADDR)->imgs[DFU_FLASH_IMG_IDX(DFU_FLASH_IMG_LCPU)]);
+            }
+        }
+#endif
+
         if (DFU_DOWNLOAD_REGION_START_ADDR != FLASH_UNINIT_32)
         {
             if ((HAL_Get_backup(RTC_BAKCUP_OTA_FORCE_MODE) == DFU_FORCE_MODE_REBOOT_TO_PACKAGE_OTA_MANAGER) ||
