@@ -106,6 +106,8 @@ RT_WEAK void *acpu_run_task(uint8_t task_name, void *param, uint32_t param_size,
 {
     rt_err_t err;
 
+    SCB_CleanInvalidateDCache();
+
 #ifdef RT_USING_PM
     rt_pm_request(PM_SLEEP_MODE_IDLE);
 #endif /* RT_USING_PM */

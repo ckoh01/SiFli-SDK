@@ -331,7 +331,6 @@ void audio_3a_open(uint32_t samplerate, uint8_t is_bt_voice, uint8_t disable_upl
         arg.all_mic_channels = all_mic_channels;
         arg.is_bt_voice = is_bt_voice;
 
-        SCB_CleanInvalidateDCache();
         acpu_run_task(ACPU_TASK_audio_3a_open, &arg, sizeof(arg), &error_code);
         RT_ASSERT(error_code == 0);
         audio_mem_free(arg.const_far);
@@ -462,7 +461,6 @@ void audio_3a_close()
 
 #if ANYKA_RUN_IN_ACPU
         uint8_t error_code = 1;
-        SCB_CleanInvalidateDCache();
         acpu_run_task(ACPU_TASK_audio_3a_close, NULL, 0, &error_code);
         RT_ASSERT(error_code == 0);
 #else
@@ -547,7 +545,6 @@ void audio_3a_downlink(uint8_t *fifo, uint8_t size)
         arg.data_in = data_in;
         arg.data_out = data_out;
         arg.tick = tick;
-        SCB_CleanInvalidateDCache();
         acpu_run_task(ACPU_TASK_audio_3a_downlink, &arg, sizeof(arg), &error_code);
         RT_ASSERT(error_code == 0);
 #else
@@ -657,7 +654,6 @@ static inline void process_data(audio_3a_t *thiz)
     arg.ts = ts;
     arg.fifo = fifo;
     arg.result = result;
-    SCB_CleanInvalidateDCache();
     acpu_run_task(ACPU_TASK_audio_3a_uplink, &arg, sizeof(arg), &error_code);
     RT_ASSERT(error_code == 0);
 #else
